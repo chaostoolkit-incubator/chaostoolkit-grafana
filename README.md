@@ -1,11 +1,11 @@
-# Chaos Toolkit Extension Template
+# Grafana extension for the Chaos Toolkit Extension
 
-[![Version](https://img.shields.io/pypi/v/chaostoolkit-my-extension.svg)](https://img.shields.io/pypi/v/chaostoolkit-lib.svg)
-[![License](https://img.shields.io/pypi/l/chaostoolkit-my-extension.svg)](https://img.shields.io/pypi/l/chaostoolkit-lib.svg)
+[![Version](https://img.shields.io/pypi/v/chaostoolkit-grafana.svg)](https://img.shields.io/pypi/v/chaostoolkit-grafana.svg)
+[![License](https://img.shields.io/pypi/l/chaostoolkit-grafana.svg)](https://img.shields.io/pypi/l/chaostoolkit-grafana.svg)
 
-![Build](https://github.com/chaostoolkit/chaostoolkit-lib/workflows/Build/badge.svg)
-[![codecov](https://codecov.io/gh/chaostoolkit/chaostoolkit-my-extension/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit/chaostoolkit-lib)
-[![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-my-extension.svg)](https://www.python.org/)
+![Build](https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/chaostoolkit-incubator/chaostoolkit-grafana/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit-incubator/chaostoolkit-grafana)
+[![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-grafana.svg)](https://www.python.org/)
 
 This project should be used as a starting point to create your own
 Chaos Toolkit extension.
@@ -20,27 +20,46 @@ environment where [chaostoolkit][] already lives.
 [chaostoolkit]: https://github.com/chaostoolkit/chaostoolkit
 
 ```
-$ pip install chaostoolkit-<your extension name here>
+$ pip install chaostoolkit-grafana
 ```
 
 ## Usage
 
-<Explain your probes and actions usage from the experiment.json here>
+### Sending Chaos Toolkit logs to Loki
 
-That's it!
+To send the Chaos Toolkit logs to Loki endpoints, you need to enable the
+according control as follows:
 
-Please explore the code to see existing probes and actions.
-
-## Configuration
-
-<Specify any extra configuration your extension relies on here>
+```json
+{
+    "secrets": {
+        "grafana": {
+            "auth": ["admin", "admin"]
+        }
+    },
+    "controls": [
+        {
+            "name": "loki",
+            "provider": {
+                "type": "python",
+                "module": "chaosgrafana.controls.loki",
+                "secrets": ["grafana"],
+                "arguments": {
+                    "loki_endpoint": "http://localhost:3100",
+                    "tags": {"service": "something"}
+                }
+            }
+        }
+    ]
+}
+```
 
 ## Test
 
 To run the tests for the project execute the following:
 
 ```
-$ pytest
+$ make tests
 ```
 
 ### Formatting and Linting
