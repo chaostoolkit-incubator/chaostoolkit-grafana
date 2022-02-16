@@ -23,6 +23,13 @@ def configure_control(
 ) -> None:
     ctk_logger.debug("Add Loki handler to logger")
 
+    if event_registry is None:
+        ctk_logger.debug(
+            "You may be using an older version of chaostoolkit-lib, make sure "
+            "you run at least 1.26.0. The Grafana extension will not "
+            "be enabled")
+        return
+
     url = f"{loki_endpoint}/loki/api/v1/push"
     auth = secrets.get("auth")
     title = experiment.get("title")
