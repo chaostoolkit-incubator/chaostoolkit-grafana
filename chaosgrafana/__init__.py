@@ -9,7 +9,7 @@ from chaoslib.types import DiscoveredActivities, Discovery
 from logzero import logger
 
 __all__ = ["__version__", "create_k8s_api_client", "discover"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def discover(discover_system: bool = True) -> Discovery:

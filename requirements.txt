@@ -1,2 +1,2 @@
 chaostoolkit-lib~=1.25
-python-logging-loki
+python-logging-loki~=0.3
