@@ -2,7 +2,7 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/compare/0.1.2...HEAD
 
 ## [0.1.2][]
 
