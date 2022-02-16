@@ -27,7 +27,8 @@ def configure_control(
         ctk_logger.debug(
             "You may be using an older version of chaostoolkit-lib, make sure "
             "you run at least 1.26.0. The Grafana extension will not "
-            "be enabled")
+            "be enabled"
+        )
         return
 
     url = f"{loki_endpoint}/loki/api/v1/push"
