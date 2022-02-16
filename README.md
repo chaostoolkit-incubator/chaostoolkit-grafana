@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/pypi/v/chaostoolkit-grafana.svg)](https://img.shields.io/pypi/v/chaostoolkit-grafana.svg)
 [![License](https://img.shields.io/pypi/l/chaostoolkit-grafana.svg)](https://img.shields.io/pypi/l/chaostoolkit-grafana.svg)
 
-![Build](https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/workflows/Build/badge.svg)
+[![Build](https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/actions/workflows/build.yaml/badge.svg)](https://github.com/chaostoolkit-incubator/chaostoolkit-grafana/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/chaostoolkit-incubator/chaostoolkit-grafana/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit-incubator/chaostoolkit-grafana)
 [![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-grafana.svg)](https://www.python.org/)
 
