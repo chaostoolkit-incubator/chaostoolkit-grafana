@@ -4,7 +4,7 @@ from secrets import token_hex
 from typing import Any, Dict
 
 import logging_loki
-from chaoslib import __version__
+from chaoslib import __version__, experiment_hash
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
 from chaoslib.types import Experiment, Journal, Secrets
 from logzero import logger as ctk_logger
@@ -20,7 +20,21 @@ def configure_control(
     event_registry: EventHandlerRegistry = None,
     loki_endpoint: str = DEFAULT_LOKI_URL,
     tags: Dict[str, str] = None,
+    experiment_ref: str = None,
+    trace_id: str = None,
 ) -> None:
+    """
+    Configure a Python logger that sends its messages to a Loki endpoint.
+
+    * `loki_endpoint` is teh base url of your Loki service
+    * `tags` a mapping of strings injected in all logs
+    * `experiment_ref` a unique string identifying this experiment, if none
+      is provided, a has of the experiment is created
+    * `trace_id` a unique string for a particular run of the experiment, if
+      none is provided, a random string is generated
+
+    This sends logs about the run events (started, finished, failed, etc.)
+    """
     ctk_logger.debug("Add Loki handler to logger")
 
     if event_registry is None:
@@ -33,16 +47,21 @@ def configure_control(
 
     url = f"{loki_endpoint}/loki/api/v1/push"
     auth = secrets.get("auth")
-    title = experiment.get("title")
+    experiment_ref = experiment_ref or experiment_hash(experiment)
+    trace_id = trace_id or token_hex(16)
     tags = tags or {}
     tags.update(
         {
             "source": "chaostoolkit",
             "chaostoolkit_lib_version": __version__,
-            "chaostoolkit_run_id": token_hex(16),
-            "chaostoolkit_experiment_title": title,
+            "chaostoolkit_run_trace_id": trace_id,
+            "chaostoolkit_experiment_ref": experiment_ref,
         }
     )
+
+    experiment_tags = experiment.get("tags")
+    if experiment_tags:
+        tags.update(experiment_tags)
 
     logging_loki.emitter.LokiEmitter.level_tag = "level"
     handler = logging_loki.LokiHandler(
@@ -56,7 +75,13 @@ def configure_control(
     event_registry.register(LokiRunEventHandler())
 
     loki_logger.info(
-        "Experiment started", extra={"tags": {"type": "experiment-started"}}
+        "Experiment started",
+        extra={
+            "tags": {
+                "type": "experiment-started",
+                "title": experiment.get("title"),
+            }
+        },
     )
 
 

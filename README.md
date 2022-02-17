@@ -54,6 +54,18 @@ according control as follows:
 }
 ```
 
+You can set two other arguments to the control:
+
+* `trace_id`: This must be a string which will identify this run uniquely in
+  your logs. If none is a provided, a random string is generated.
+* `experiment_ref`: Sometimes it's useful to identify a particular experiment,
+  not just its run, throughout many runs. This is the string to do that. If
+  none is provided, a hash of the experiment is performed and used. The hash
+  is not stable across changes of the experiment of course.
+  
+These are particularly useful when you cpuple this extension with others like
+Prometheus where you want to cross-reference between logs and metrics.
+
 ## Test
 
 To run the tests for the project execute the following:

@@ -12,7 +12,7 @@ def test_sending_to_loki():
 
         registry = EventHandlerRegistry()
         configure_control(
-            experiment={"title": "hello"},
+            experiment={"title": "hello", "tags": {"One": "1"}},
             event_registry=registry,
             secrets={"auth": ("admin", "admin")},
             loki_endpoint="http://localhost.test:3100",
@@ -26,6 +26,7 @@ def test_sending_to_loki():
     stream = payload["streams"][0]["stream"]
     assert stream["test"] == "yes"
     assert "chaostoolkit_lib_version" in stream
-    assert "chaostoolkit_run_id" in stream
-    assert "chaostoolkit_experiment_title" in stream
+    assert "chaostoolkit_run_trace_id" in stream
+    assert "chaostoolkit_experiment_ref" in stream
+    assert "One" in stream
     assert stream["source"] == "chaostoolkit"
