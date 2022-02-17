@@ -10,6 +10,8 @@
 -   Providing a way to set the `trace_id` through the experiment
 -   Providing a way to set an experiment reference for cross-reference
 -   Minimal requirement is now chaostoolkit-lib 1.27.0
+-   Extended logs with more metadata
+-   Logging activities too
 
 ## [0.1.2][]
 

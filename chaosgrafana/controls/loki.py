@@ -6,7 +6,7 @@ from typing import Any, Dict
 import logging_loki
 from chaoslib import __version__, experiment_hash
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
-from chaoslib.types import Experiment, Journal, Secrets
+from chaoslib.types import Activity, Experiment, Journal, Run, Secrets
 from logzero import logger as ctk_logger
 
 __all__ = ["configure_control"]
@@ -85,6 +85,37 @@ def configure_control(
     )
 
 
+def before_activity_control(context: Activity, *args, **kwargs) -> None:
+    a = context
+    loki_logger.info(
+        f"Activity '{a['name']}' started",
+        extra={
+            "tags": {"type": "experiment-activity-started", "name": a["name"]},
+        },
+    )
+
+
+def after_activity_control(
+    context: Activity, state: Run, *args, **kwargs
+) -> None:
+    a = context
+    loki_logger.info(
+        f"Activity '{a['name']}' finished",
+        extra={
+            "tags": {
+                "type": "experiment-activity-finished",
+                "name": a["name"],
+                "status": state["status"],
+                "start": state["start"],
+                "end": state["end"],
+                "duration": state["duration"],
+                "output": state["output"],
+                "exception": state.get("exception"),
+            },
+        },
+    )
+
+
 ###############################################################################
 # Private functions
 ###############################################################################
@@ -104,7 +135,16 @@ class LokiRunEventHandler(RunEventHandler):
     def finish(self, journal: Journal) -> None:
         loki_logger.info(
             "Experiment finished",
-            extra={"tags": {"type": "experiment-finished"}},
+            extra={
+                "tags": {
+                    "type": "experiment-finished",
+                    "deviated": journal.get("deviated"),
+                    "status": journal.get("status"),
+                    "start": journal.get("start"),
+                    "end": journal.get("end"),
+                    "duration": journal.get("duration"),
+                },
+            },
         )
 
     def interrupted(self, experiment: Experiment, journal: Journal) -> None:
@@ -158,9 +198,21 @@ class LokiRunEventHandler(RunEventHandler):
     def hypothesis_before_completed(
         self, experiment: Experiment, state: Dict[str, Any], journal: Journal
     ) -> None:
+        extra = {
+            "tags": {
+                "type": "experiment-before-ssh-completed",
+                "state_met": state.get("steady_state_met"),
+            },
+        }
+
+        if state.get("steady_state_met") is False:
+            for probe in state.get("probes", []):
+                if probe["tolerance_met"] is False:
+                    extra["tags"]["failed_probe"] = probe
+                    break
+
         loki_logger.info(
-            "Experiment before steady state completed",
-            extra={"tags": {"type": "experiment-before-ssh-completed"}},
+            "Experiment before steady state completed", extra=extra
         )
 
     def start_hypothesis_after(self, experiment: Experiment) -> None:
@@ -172,10 +224,20 @@ class LokiRunEventHandler(RunEventHandler):
     def hypothesis_after_completed(
         self, experiment: Experiment, state: Dict[str, Any], journal: Journal
     ) -> None:
-        loki_logger.info(
-            "Experiment after steady state completed",
-            extra={"tags": {"type": "experiment-after-ssh-completed"}},
-        )
+        extra = {
+            "tags": {
+                "type": "experiment-after-ssh-completed",
+                "state_met": state.get("steady_state_met"),
+            },
+        }
+
+        if state.get("steady_state_met") is False:
+            for probe in state.get("probes", []):
+                if probe["tolerance_met"] is False:
+                    extra["tags"]["failed_probe"] = probe
+                    break
+
+        loki_logger.info("Experiment after steady state completed", extra=extra)
 
     def start_method(self, experiment: Experiment) -> None:
         loki_logger.info(
