@@ -2,6 +2,7 @@
 from typing import List
 
 from chaoslib.discovery.discover import (
+    discover_actions,
     discover_activities,
     initialize_discovery_result,
 )
@@ -34,6 +35,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     """
     activities = []
     activities.extend(
-        discover_activities("chaosgrafana.controls.loki", "control")
+        discover_activities("chaosgrafana.controls.loki", "control"),
+        discover_actions("chaosgrafana.k6.actions"),
     )
     return activities
